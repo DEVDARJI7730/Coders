@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test</title>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #166088;
+            --accent: #4fc3f7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--light);
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            color: var(--secondary);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--dark);
+            font-weight: bold;
+        }
+
+        .test-area {
+            margin-bottom: 30px;
+        }
+
+        .paragraph-display {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            user-select: none;
+        }
+
+        .current-word {
+            background-color: var(--accent);
+            color: white;
+            padding: 0 4px;
+            border-radius: 3px;
+        }
+
+        .correct {
+            color: var(--success);
+        }
+
+        .incorrect {
+            color: var(--danger);
+            text-decoration: underline;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            resize: none;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            width: calc(50% - 10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 0 10px;
+        }
+
+        button:hover {
+            background-color: var(--secondary);
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .difficulty-btn {
+            padding: 8px 16px;
+            margin: 0 5px;
+            background-color: #e9ecef;
+            color: var(--dark);
+            border: 1px solid #ced4da;
+        }
+
+        .difficulty-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .stat-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Typing Speed Test</h1>
+        
+        <div class="difficulty-selector">
+            <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+            <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+            <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+        </div>
+        
+        <div class="timer-display" id="timer">01:00</div>
+        
+        <div class="test-area">
+            <div class="paragraph-display" id="paragraph"></div>
+            <textarea class="text-input" id="text-input" placeholder="Start typing here... (timer starts when you begin typing)" rows="5" disabled></textarea>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-title">Words Per Minute</div>
+                <div class="stat-value" id="wpm">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Accuracy</div>
+                <div class="stat-value" id="accuracy">0%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Correct Characters</div>
+                <div class="stat-value" id="correct-chars">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Incorrect Characters</div>
+                <div class="stat-value" id="incorrect-chars">0</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="start-btn" disabled>Start Test</button>
+            <button id="reset-btn">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const PARAGRAPH_LENGTH = {
+            easy: 100,
+            medium: 150,
+            hard: 200
+        };
+
+        // Sample paragraphs for each difficulty level
+        const SAMPLE_PARAGRAPHS = {
+            easy: [
+                "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump! Bright vixens jump; dozy fowl quack.",
+                "A wizard's job is to vex chumps quickly in fog. Watch 'Jeopardy!', Alex Trebek's fun TV quiz game. Five quacking zephyrs jolt my wax bed. The five boxing wizards jump quickly.",
+                "Few quips galvanized the mock jury box. Quick wafting zephyrs vex bold Jim. Jackdaws love my big sphinx of quartz. The jay, pig, fox, zebra and my wolves quack!"
+            ],
+            medium: [
+                "The relentless pursuit of knowledge often leads us down unexpected paths. Technology evolves at a breathtaking pace, transforming industries and reshaping society. Innovation requires persistence, creativity, and a willingness to challenge conventions.",
+                "Reading comprehension is fundamental to academic success. Critical thinking skills enable us to analyze information objectively and make informed decisions. Effective communication facilitates productive collaboration across diverse teams.",
+                "The human brain possesses remarkable neuroplasticity, adapting continuously to new experiences. Learning languages strengthens cognitive abilities and enhances problem-solving skills. Cultural awareness fosters meaningful connections in our globalized world."
+            ],
+            hard: [
+                "Perspicuity in exposition necessitates meticulous attention to lexicological precision. The phenomenological paradigm posits that epistemological constructs are invariably contingent upon ontological presuppositions. Eschewing obfuscation while simultaneously circumventing circumlocution requires considerable cognitive exertion.",
+                "Quantum mechanics posits that particles can exist in superposition states until measured. The Heisenberg uncertainty principle fundamentally constrains our ability to simultaneously determine complementary variables. Schrödinger's thought experiment involving a cat highlights the counterintuitive nature of quantum superposition.",
+                "Epistemological skepticism challenges the veracity of purported knowledge claims. Cartesian duality postulates an ontological distinction between res cogitans and res extensa. The Münchhausen trilemma demonstrates that justification ultimately relies on either circular reasoning, infinite regress, or axiomatic dogmatism."
+            ]
+        };
+
+        // DOM elements
+        const timerDisplay = document.getElementById('timer');
+        const paragraphDisplay = document.getElementById('paragraph');
+        const textInput = document.getElementById('text-input');
+        const wpmDisplay = document.getElementById('wpm');
+        const accuracyDisplay = document.getElementById('accuracy');
+        const correctCharsDisplay = document.getElementById('correct-chars');
+        const incorrectCharsDisplay = document.getElementById('incorrect-chars');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+
+        // State variables
+        let timer;
+        let timeLeft = 60; // 1 minute
+        let isRunning = false;
+        let currentDifficulty = 'easy';
+        let currentParagraph = '';
+        let typedText = '';
+        let startTime;
+        let correctCharacters = 0;
+        let incorrectCharacters = 0;
+        let currentWordIndex = 0;
+        let words = [];
+
+        // Initialize the app
+        init();
+
+        function init() {
+            loadNewParagraph(currentDifficulty);
+            setupEventListeners();
+        }
+
+        function loadNewParagraph(difficulty) {
+            const paragraphs = SAMPLE_PARAGRAPHS[difficulty];
+            currentParagraph = paragraphs[Math.floor(Math.random() * paragraphs.length)];
+            
+            // Ensure the paragraph is long enough
+            while (currentParagraph.length < PARAGRAPH_LENGTH[difficulty]) {
+                const extraParagraph = paragraphs[Math.floor(Math.random() * paragraphs.length)];
+                currentParagraph += ' ' + extraParagraph;
+            }
+            
+            // Trim to desired length
+            currentParagraph = currentParagraph.substring(0, PARAGRAPH_LENGTH[difficulty]);
+            words = currentParagraph.split(' ');
+            
+            renderParagraph();
+        }
+
+        function renderParagraph() {
+            let html = '';
+            words.forEach((word, index) => {
+                if (index === currentWordIndex) {
+                    html += `<span class="current-word">${word}</span> `;
+                } else {
+                    html += `${word} `;
+                }
+            });
+            paragraphDisplay.innerHTML = html;
+        }
+
+        function setupEventListeners() {
+            // Difficulty selection
+            difficultyBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    difficultyBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentDifficulty = btn.dataset.difficulty;
+                    resetTest();
+                    loadNewParagraph(currentDifficulty);
+                });
+            });
+
+            // Typing input
+            textInput.addEventListener('input', (e) => {
+                if (!isRunning) {
+                    startTest();
+                }
+                
+                typedText = e.target.value;
+                checkTyping();
+                calculateStats();
+            });
+
+            // Start button
+            startBtn.addEventListener('click', startTest);
+
+            // Reset button
+            resetBtn.addEventListener('click', resetTest);
+        }
+
+        function startTest() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            startTime = new Date();
+            timer = setInterval(updateTimer, 1000);
+            textInput.disabled = false;
+            textInput.focus();
+            startBtn.disabled = true;
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            
+            // Format timer display as MM:SS
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                endTest();
+            }
+        }
+
+        function checkTyping() {
+            let currentWord = words[currentWordIndex];
+            
+            // Check if space was pressed to move to next word
+            if (typedText.endsWith(' ')) {
+                // Check if the typed word matches the current word
+                const typedWord = typedText.trim();
+                
+                if (typedWord === currentWord) {
+                    correctCharacters += currentWord.length;
+                } else {
+                    incorrectCharacters += Math.min(currentWord.length, typedWord.length);
+                    const diff = Math.abs(currentWord.length - typedWord.length);
+                    incorrectCharacters += diff;
+                }
+                
+                // Move to next word
+                currentWordIndex++;
+                typedText = '';
+                textInput.value = '';
+                
+                // Check if test is complete
+                if (currentWordIndex >= words.length) {
+                    endTest();
+                    return;
+                }
+                
+                renderParagraph();
+            }
+        }
+
+        function calculateStats() {
+            // Calculate WPM (words per minute)
+            const timeElapsed = (new Date() - startTime) / 60000; // in minutes
+            const wordsTyped = typedText.trim().split(' ').filter(word => word !== '').length;
+            const wpm = Math.round(wordsTyped / timeElapsed) || 0;
+            wpmDisplay.textContent = wpm;
+            
+            // Calculate accuracy
+            const totalChars = correctCharacters + incorrectCharacters;
+            const accuracy = totalChars > 0 ? Math.round((correctCharacters / totalChars) * 100) : 0;
+            accuracyDisplay.textContent = `${accuracy}%`;
+            
+            // Update character counts
+            correctCharsDisplay.textContent = correctCharacters;
+            incorrectCharsDisplay.textContent = incorrectCharacters;
+        }
+
+        function endTest() {
+            clearInterval(timer);
+            isRunning = false;
+            textInput.disabled = true;
+            startBtn.disabled = false;
+            calculateStats();
+        }
+
+        function resetTest() {
+            clearInterval(timer);
+            isRunning = false;
+            timeLeft = 60;
+            timerDisplay.textContent = '01:00';
+            textInput.value = '';
+            textInput.disabled = false;
+            typedText = '';
+            correctCharacters = 0;
+            incorrectCharacters = 0;
+            currentWordIndex = 0;
+            wpmDisplay.textContent = '0';
+            accuracyDisplay.textContent = '0%';
+            correctCharsDisplay.textContent = '0';
+            incorrectCharsDisplay.textContent = '0';
+            startBtn.disabled = false;
+            
+            loadNewParagraph(currentDifficulty);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Clone</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #141414;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 68px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4%;
+            z-index: 10;
+            transition: background-color 0.3s;
+            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+        }
+
+        .header.scrolled {
+            background-color: #141414;
+        }
+
+        .header-logo {
+            height: 45px;
+            width: auto;
+        }
+
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-button {
+            background-color: #e50914;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .header-button:hover {
+            background-color: #f40612;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 0 20px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%);
+            z-index: 1;
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 3.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 30px;
+        }
+
+        .hero-form {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .hero-input {
+            width: 100%;
+            max-width: 500px;
+            height: 60px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .hero-button {
+            height: 60px;
+            padding: 0 30px;
+            background-color: #e50914;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.6rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .hero-button:hover {
+            background-color: #f40612;
+        }
+
+        /* Content Rows */
+        .content {
+            padding: 0 4%;
+            margin-bottom: 50px;
+        }
+
+        .content-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .content-row {
+            display: flex;
+            overflow-x: scroll;
+            gap: 10px;
+            padding-bottom: 20px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .content-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .content-item {
+            position: relative;
+            min-width: 220px;
+            height: 125px;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .content-item.large {
+            min-width: 300px;
+            height: 170px;
+        }
+
+        .content-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .content-item:hover {
+            transform: scale(1.1);
+            z-index: 1;
+        }
+
+        .content-item:hover .content-item-info {
+            opacity: 1;
+        }
+
+        .content-item-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #141414;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 450px;
+            padding: 40px 60px;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: none;
+            background-color: #333;
+            color: white;
+            font-size: 16px;
+        }
+
+        .modal-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #e50914;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .modal-button:hover {
+            background-color: #f40612;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            color: #737373;
+            font-size: 0.9rem;
+        }
+
+        .modal-link {
+            color: #737373;
+            text-decoration: none;
+        }
+
+        .modal-link:hover {
+            text-decoration: underline;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #737373;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #000;
+            color: #737373;
+            padding: 70px 0;
+            margin-top: 50px;
+        }
+
+        .footer-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .footer-link {
+            color: #737373;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .hero-form {
+                flex-direction: column;
+            }
+
+            .hero-input, .hero-button {
+                width: 100%;
+            }
+
+            .content-item {
+                min-width: 150px;
+                height: 85px;
+            }
+
+            .content-item.large {
+                min-width: 200px;
+                height: 120px;
+            }
+
+            .modal-content {
+                padding: 40px 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .hero-button {
+                font-size: 1.2rem;
+            }
+
+            .header-buttons {
+                gap: 10px;
+            }
+
+            .header-button {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .content-item {
+                min-width: 120px;
+                height: 70px;
+            }
+
+            .content-item.large {
+                min-width: 160px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <img src="https://www.freepnglogos.com/uploads/netflix-logo-0.png" alt="Netflix logo" class="header-logo">
+        <div class="header-buttons">
+            <button class="header-button" id="signInBtn">Sign In</button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/fbd5fc5a-d79a-4bc6-bf22-181ed57a2a2e.png" alt="Dramatic close-up of a hero character from a popular Netflix original series with intense cinematic lighting" class="hero-background">
+        <div class="hero-content">
+            <h1 class="hero-title">Unlimited movies, TV shows, and more.</h1>
+            <p class="hero-subtitle">Watch anywhere. Cancel anytime.</p>
+            <form class="hero-form">
+                <input type="email" class="hero-input" placeholder="Email address">
+                <button type="submit" class="hero-button">
+                    Get Started
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Content Sections -->
+    <section class="content">
+        <h2 class="content-title">Popular on Netflix</h2>
+        <div class="content-row">
+            <div class="content-item">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/b3ed6854-0892-4129-b4aa-c02f114baea3.png" alt="Action movie poster with intense combat scene and explosions in the background">
+                <div class="content-item-info">Top Action Movie</div>
+            </div>
+            <div class="content-item">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/30c7e510-b198-41d5-8d35-57ce724a5d90.png" alt="Sci-fi series poster featuring futuristic cityscape and advanced technology">
+                <div class="content-item-info">Sci-Fi Hit Series</div>
+            </div>
+            <div class="content-item">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5c11d7b4-5d30-4694-97e0-694fa8e2aa79.png" alt="Romantic comedy movie poster with a couple in a funny yet sweet moment">
+                <div class="content-item-info">New Romantic Comedy</div>
+            </div>
+            <div class="content-item">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/518332e4-c883-4b4f-9a00-ce8579d9465d.png" alt="Crime drama poster featuring a detective investigating a mysterious case">
+                <div class="content-item-info">Crime Drama</div>
+            </div>
+            <div class="content-item">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d473e511-59f5-452a-b8fb-e84219f9e776.png" alt="Fantasy adventure movie poster with magical creatures and epic landscapes">
+                <div class="content-item-info">Fantasy Adventure</div>
+            </div>
+            <div class="content-item">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/0a45650f-a932-4ee8-8f30-1d19000525d1.png" alt="Horror film poster with spooky atmosphere and shadowy figures">
+                <div class="content-item-info">Scary Horror Movie</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <h2 class="content-title">Trending Now</h2>
+        <div class="content-row">
+            <div class="content-item large">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/1e50efbe-9ee1-4446-a0b4-adb652e2229c.png" alt="Binge-worthy series poster featuring an ensemble cast in dramatic poses">
+                <div class="content-item-info">Binge-Worthy Series</div>
+            </div>
+            <div class="content-item large">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/dad5a778-1735-41b9-8313-3b2900dbda74.png" alt="Docuseries poster highlighting an intriguing true crime investigation">
+                <div class="content-item-info">True Crime Docuseries</div>
+            </div>
+            <div class="content-item large">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6c02a97f-3c82-485b-9d78-b7318ce10a66.png" alt="Animated family film poster with colorful characters and wacky adventures">
+                <div class="content-item-info">Family Animation</div>
+            </div>
+            <div class="content-item large">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/42413a20-8eb3-4def-b719-efa760924464.png" alt="Stand-up comedy special poster featuring a famous comedian on stage">
+                <div class="content-item-info">Comedy Special</div>
+            </div>
+            <div class="content-item large">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6c801b08-c351-4ad6-b01b-66e4cb65cba7.png" alt="Reality show poster with contestants in a competitive environment">
+                <div class="content-item-info">New Reality Show</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <h2 class="content-title">Netflix Originals</h2>
+        <div class="content-row">
+            <div class="content-item">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/61e2b3e4-4b07-40fb-94b8-f08c340c0dac.png" alt="Award-winning Netflix original drama series poster">
+                <div class="content-item-info">Award-Winning Drama</div>
+            </div>
+            <div class="content-item">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/53462b02-055b-4775-b809-307c2ace638c.png" alt="Popular Netflix original fantasy series with striking visual effects">
+                <div class="content-item-info">Fantasy Epic</div>
+            </div>
+            <div class="content-item">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/779db68d-4fbc-4c4d-ae62-63ac1e9e64f4.png" alt="Dark Netflix thriller series with mysterious tone and cinematography">
+                <div class="content-item-info">Psychological Thriller</div>
+            </div>
+            <div class="content-item">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/66a0f137-9009-4965-95d4-6ccd68673533.png" alt="Heartwarming Netflix original comedy series about modern relationships">
+                <div class="content-item-info">Modern Comedy</div>
+            </div>
+            <div class="content-item">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/9f9d7fca-43ad-4aa9-9096-d675057d3ee1.png" alt="Animated Netflix series aimed at adult audiences with sophisticated humor">
+                <div class="content-item-info">Adult Animation</div>
+            </div>
+            <div class="content-item">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/a409f49a-124b-407c-9c2d-50924514e0c8.png" alt="Reality competition show produced by Netflix with celebrity judges">
+                <div class="content-item-info">Reality Competition</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="modal-close" id="modalClose">&times;</span>
+            <h2 class="modal-title">Sign In</h2>
+            <form id="loginForm">
+                <input type="email" class="modal-input" placeholder="Email or phone number">
+                <input type="password" class="modal-input" placeholder="Password">
+                <button type="submit" class="modal-button">Sign In</button>
+                <div class="modal-footer">
+                    <a href="#" class="modal-link">Need help?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal" id="signupModal">
+        <div class="modal-content">
+            <span class="modal-close" id="signupModalClose">&times;</span>
+            <h2 class="modal-title">Sign Up</h2>
+            <form id="signupForm">
+                <input type="text" class="modal-input" placeholder="Name">
+                <input type="email" class="modal-input" placeholder="Email">
+                <input type="password" class="modal-input" placeholder="Password">
+                <button type="submit" class="modal-button">Sign Up</button>
+                <div class="modal-footer">
+                    <p>Already have an account? <a href="#" class="modal-link" id="showLogin">Sign in now</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>Questions? Call 1-800-123For-free</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">FAQ</a>
+                <a href="#" class="footer-link">Help Center</a>
+                <a href="#" class="footer-link">Netflix Shop</a>
+                <a href="#" class="footer-link">Terms of Use</a>
+                <a href="#" class="footer-link">Privacy</a>
+                <a href="#" class="footer-link">Cookie Preferences</a>
+                <a href="#" class="footer-link">Corporate Information</a>
+                <a href="#" class="footer-link">Do Not Sell My Info</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Modal functionality
+        const signInBtn = document.getElementById('signInBtn');
+        const modalClose = document.getElementById('modalClose');
+        const loginModal = document.getElementById('loginModal');
+        const signupModal = document.getElementById('signupModal');
+        const signupModalClose = document.getElementById('signupModalClose');
+        const showLogin = document.getElementById('showLogin');
+
+        signInBtn.addEventListener('click', () => {
+            loginModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        });
+
+        modalClose.addEventListener('click', () => {
+            loginModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+
+        signupModalClose.addEventListener('click', () => {
+            signupModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupModal.style.display = 'none';
+            loginModal.style.display = 'flex';
+        });
+
+        // Toggle between sign up and sign in
+        document.querySelector('.hero-button').addEventListener('click', (e) => {
+            if (document.querySelector('.hero-input').value) {
+                e.preventDefault();
+                signupModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        });
+
+        // Form submits (mockup functionality)
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Login functionality would be implemented here');
+            loginModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Signup functionality would be implemented here');
+            signupModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+    </script>
+</body>
+</html>
